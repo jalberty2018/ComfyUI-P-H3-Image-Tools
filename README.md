@@ -1,0 +1,61 @@
+# ComfyUI P-H3 Image Tools
+
+Custom node for ComfyUI **0.44.0**: **P-H3 Upsampler Prepare (10 Images)**,
+available under `P-H3/Image Tools`.
+
+## Installation
+
+Place this folder in `ComfyUI/custom_nodes/ComfyUI-P-H3-Image-Tools` in your
+actual ComfyUI installation and restart ComfyUI. No additional dependencies
+beyond ComfyUI are required. This development workspace is not itself a running
+ComfyUI installation.
+
+## Usage
+
+- `prompt`: your editing request, optionally supplied through a STRING connection.
+- `image_1` through `image_10`: optional IMAGE inputs. All ten may be connected:
+  `None` values (such as those returned by LSReferenceSpitter) and batches containing
+  zero images are ignored.
+- `reference_image`: the input slot that determines the image to edit and the output
+  dimensions; defaults to **1**. This becomes `Edit <Picture N>` in the prompt.
+- `megapixels`: defaults to **1.0**, using Lanczos and preserving the aspect ratio.
+  Like the original Scale Image to Total Pixels node, this uses 1024 × 1024 pixels
+  per MP. Smaller images are also enlarged to reach this target.
+- `upsampler_prompt` → `Generate Text.prompt`.
+- `images` → `Generate Text.image` (a single IMAGE batch).
+
+The node replaces StringFormat, ImageScaleToTotalPixels, GetImageSize,
+ResizeAndPadImage, and BatchImagesNode inside **Make one node**. Generate Text
+remains separate and runs the model. The original images for PH3ImageConditioning
+remain connected separately.
+
+Other images are resized to fit, with centered white padding. The batch preserves
+input order; the reference image is not moved to the front. Transparency is
+composited onto white, and grayscale images are converted to RGB.
+
+When some input slots are empty, `<Picture N>` references in your input prompt
+refer to the **input slot numbers**. With only image_1 and image_5 supplied,
+`<Picture 5>` automatically becomes `<Picture 2>` in the output prompt. An empty
+selected reference, a reference to an empty input, or no images at all produces
+a clear error. A batch supplied to an input is included in full; a reference to
+that input points to the first image in its batch. Each image in the batch receives
+its own vision block.
+
+An upstream ExecutionBlocker blocks execution according to ComfyUI's own rules;
+use `None` for empty images. A black image is a valid image and is retained.
+
+## Example workflow
+
+`examples/p-h3-image_edit_one_node.json` is the supplied workflow with the group
+replaced and all ten LSReferenceSpitter outputs connected. Other custom nodes
+and models from the original workflow are still required.
+
+## Validation
+
+`python -m unittest discover -s tests -v` checks selection, empty inputs,
+batch counting, prompt numbering, and calls to ComfyUI using test doubles.
+A full GPU/model run must be performed in the target installation.
+
+The integration uses the official v0.44.0 classes:
+[ImageScaleToTotalPixels](https://github.com/Comfy-Org/ComfyUI/blob/v0.44.0/comfy_extras/nodes_post_processing.py)
+and [ResizeAndPadImage](https://github.com/Comfy-Org/ComfyUI/blob/v0.44.0/comfy_extras/nodes_images.py).
