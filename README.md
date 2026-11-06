@@ -59,3 +59,7 @@ A full GPU/model run must be performed in the target installation.
 The integration uses the official v0.44.0 classes:
 [ImageScaleToTotalPixels](https://github.com/Comfy-Org/ComfyUI/blob/v0.44.0/comfy_extras/nodes_post_processing.py)
 and [ResizeAndPadImage](https://github.com/Comfy-Org/ComfyUI/blob/v0.44.0/comfy_extras/nodes_images.py).
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
