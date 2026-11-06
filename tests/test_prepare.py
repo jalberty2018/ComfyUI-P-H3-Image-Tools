@@ -74,7 +74,7 @@ class PrepareTests(unittest.TestCase):
         self.assertEqual(text.count("<|image_pad|>"), 10)
 
     def test_invalid_inputs(self):
-        for kwargs in ({}, {"image_2": Tensor()}, {"image_1": "bad"}, {"image_1": Tensor(), "megapixels": float("nan")}):
+        for kwargs in ({}, {"image_1": "bad"}, {"image_1": Tensor(), "megapixels": float("nan")}):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 self.node.prepare("Edit", **kwargs)
         with self.assertRaisesRegex(ValueError, "input is empty"):
@@ -83,6 +83,22 @@ class PrepareTests(unittest.TestCase):
     def test_single_image_exact_template(self):
         text, _ = self.node.prepare("Hello", image_1=Tensor())
         self.assertEqual(text, "<|im_start|>user\n<Picture 1>: <|vision_start|><|image_pad|><|vision_end|>\nEdit <Picture 1>. Hello<|im_end|>\n<|im_start|>assistant\n<think>\n")
+
+    def test_missing_reference_with_two_connected_inputs(self):
+        with self.assertLogs(level="WARNING") as logs:
+            text, images = self.node.prepare("Use <Picture 1> and <Picture 2>", 3,
+                image_1=Tensor(), image_2=Tensor())
+        self.assertIn("Edit <Picture 1>.", text)
+        self.assertEqual(images.shape[0], 2)
+        self.assertIn("using image_1", logs.output[0])
+
+    def test_connected_empty_reference_uses_first_actual_image(self):
+        inputs = {f"image_{i}": None for i in range(1, 11)}
+        inputs.update(image_3=Tensor((0, 20, 20, 3)), image_7=Tensor())
+        with self.assertLogs(level="WARNING"):
+            text, images = self.node.prepare("Use <Picture 7>", 3, **inputs)
+        self.assertIn("Edit <Picture 1>. Use <Picture 1>", text)
+        self.assertEqual(images.shape[0], 1)
 
 
 if __name__ == "__main__":

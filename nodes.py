@@ -1,5 +1,6 @@
 """Prepare the prompt and image batch for P-H3's TextGenerate node."""
 
+import logging
 import math
 import re
 
@@ -11,7 +12,7 @@ class PH3UpsamplerPrepare:
             "required": {
                 "prompt": ("STRING", {"multiline": True, "default": ""}),
                 "reference_image": ("INT", {"default": 1, "min": 1, "max": 10,
-                    "tooltip": "Input slot used for Edit <Picture N> and output dimensions."}),
+                    "tooltip": "Input slot used for Edit <Picture N> and output dimensions. If empty, uses the first available image."}),
                 "megapixels": ("FLOAT", {"default": 1.0, "min": 0.01, "max": 16.0, "step": 0.01}),
             },
             "optional": {f"image_{i}": ("IMAGE",) for i in range(1, 11)},
@@ -53,7 +54,12 @@ class PH3UpsamplerPrepare:
         if not active:
             raise ValueError("No images supplied. Connect at least one non-empty IMAGE.")
         if reference_image not in picture_numbers:
-            raise ValueError(f"Reference image_{reference_image} is empty. Select an occupied input slot.")
+            fallback = active[0][0]
+            logging.warning(
+                "P-H3 Upsampler Prepare: reference image_%s is empty; using image_%s instead.",
+                reference_image, fallback,
+            )
+            reference_image = fallback
 
         # Prompt references name input slots; compact them together with the batch.
         def replace_picture(match):
