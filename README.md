@@ -13,12 +13,13 @@ ComfyUI installation.
 ## Usage
 
 - `prompt`: your editing request, optionally supplied through a STRING connection.
-- `image_1` through `image_10`: optional IMAGE inputs. All ten may be connected:
+- `Picture 1` through `Picture 10`: optional IMAGE inputs. All ten may be connected:
   `None` values (such as those returned by LSReferenceSpitter) and batches containing
   zero images are ignored.
   The UI starts with one image input and adds one spare input as you connect
   images, up to ten. Disconnecting trailing images removes unused trailing
   inputs. Interior gaps and existing connections keep their original slot names.
+  Internal/API names remain `image_1` through `image_10` for workflow compatibility.
 - `reference_image`: the input slot that determines the image to edit and the output
   dimensions; defaults to **1**. This becomes `Edit <Picture N>` in the prompt.
   If the selected slot is empty, the first available image is used instead,

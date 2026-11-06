@@ -25,6 +25,14 @@ export function syncImageInputs(node) {
             changed = true;
         }
     }
+    // Keep serialized/API names stable for existing workflows.
+    for (const input of node.inputs ?? []) {
+        const number = imageNumber(input);
+        if (number && input.label !== `Picture ${number}`) {
+            input.label = `Picture ${number}`;
+            changed = true;
+        }
+    }
     if (changed) {
         node.setSize(node.computeSize());
         node.setDirtyCanvas(true, true);
