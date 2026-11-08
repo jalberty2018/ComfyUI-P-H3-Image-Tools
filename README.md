@@ -94,9 +94,14 @@ the shared frame dimensions are returned. This node does not resize the image.
 
 ## Example workflow
 
-`examples/p-h3-image_edit_one_node.json` is the supplied workflow with the group
-replaced and two example images connected. Other custom nodes
-and models from the original workflow are still required.
+![P-H3 Upsampler Prepare and Resolution Selector workflow](examples/p-h3-image-tools-workflow.jpg)
+
+Two input images are prepared as a batch, while `original_ref_image` supplies
+the reference at its original resolution. The Resolution Selector rounds its
+dimensions to `multiple` for the connected Resize And Pad Image node.
+
+[Download the example workflow](examples/p-h3-image-tools-workfow.json) to try
+the setup shown above. Load your own images in the two Load Image nodes.
 
 ## Validation
 

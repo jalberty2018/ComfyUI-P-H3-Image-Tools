@@ -1,0 +1,521 @@
+{
+  "id": "616ff14d-0c2d-4166-a0cc-f13154cfabaf",
+  "revision": 0,
+  "last_node_id": 12,
+  "last_link_id": 17,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "PH3UpsamplerPrepare",
+      "pos": [
+        -205.8854033155116,
+        233.25908534067094
+      ],
+      "size": [
+        280.1763671875,
+        176
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "Picture 1",
+          "name": "image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "label": "Picture 2",
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "label": "Picture 3",
+          "name": "image_3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "upsampler_prompt",
+          "type": "STRING",
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "original_ref_image",
+          "type": "IMAGE",
+          "links": [
+            5,
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PH3UpsamplerPrepare"
+      },
+      "widgets_values": [
+        "Use persons in <Picture 1> and <Picture 2> sitting at a dinner table",
+        1,
+        1
+      ],
+      "widgets_values_named": {
+        "prompt": "Use persons in <Picture 1> and <Picture 2> sitting at a dinner table",
+        "reference_image": 1,
+        "megapixels": 1
+      }
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        -531.9674508751743,
+        171.81292465376944
+      ],
+      "size": [
+        282.798828125,
+        314
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "p-h3-image_00009_.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "p-h3-image_00009_.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 3,
+      "type": "LoadImage",
+      "pos": [
+        -536.37518118789,
+        548.67243719304
+      ],
+      "size": [
+        282.798828125,
+        314
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "girl_older_profile.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "girl_older_profile.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 4,
+      "type": "PreviewAny",
+      "pos": [
+        118.91809546388417,
+        80.33543438549019
+      ],
+      "size": [
+        475.5647214779128,
+        191.42147919625802
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 5,
+      "type": "PreviewImage",
+      "pos": [
+        130.45709912744584,
+        345.6377435875396
+      ],
+      "size": [
+        140,
+        246
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 6,
+      "type": "PreviewImage",
+      "pos": [
+        308.1358895290264,
+        345.62612165134186
+      ],
+      "size": [
+        140,
+        246
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 7,
+      "type": "PH3ResolutionSelector",
+      "pos": [
+        474.24179136002226,
+        347.83573994972096
+      ],
+      "size": [
+        273.86328125,
+        150
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            16
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PH3ResolutionSelector"
+      },
+      "widgets_values": [
+        true,
+        "1:1 (Square)",
+        1,
+        32,
+        null
+      ],
+      "widgets_values_named": {
+        "use_original_image_resolution": true,
+        "aspect_ratio": "1:1 (Square)",
+        "megapixels": 1,
+        "multiple": 32,
+        "resolution_info": null
+      }
+    },
+    {
+      "id": 11,
+      "type": "PreviewImage",
+      "pos": [
+        1113.6222075524172,
+        327.45273766346145
+      ],
+      "size": [
+        140,
+        246
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 12,
+      "type": "ResizeAndPadImage",
+      "pos": [
+        801.747125360572,
+        326.0749693291608
+      ],
+      "size": [
+        270,
+        130
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 13
+        },
+        {
+          "name": "target_width",
+          "type": "INT",
+          "widget": {
+            "name": "target_width"
+          },
+          "link": 16
+        },
+        {
+          "name": "target_height",
+          "type": "INT",
+          "widget": {
+            "name": "target_height"
+          },
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ResizeAndPadImage"
+      },
+      "widgets_values": [
+        512,
+        512,
+        "white",
+        "lanczos"
+      ],
+      "widgets_values_named": {
+        "target_width": 512,
+        "target_height": 512,
+        "padding_color": "white",
+        "interpolation": "lanczos"
+      }
+    }
+  ],
+  "links": [
+    [
+      3,
+      1,
+      0,
+      4,
+      0,
+      "STRING"
+    ],
+    [
+      4,
+      1,
+      1,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      5,
+      1,
+      2,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      6,
+      6,
+      0,
+      7,
+      0,
+      "IMAGE"
+    ],
+    [
+      1,
+      2,
+      0,
+      1,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      3,
+      0,
+      1,
+      1,
+      "IMAGE"
+    ],
+    [
+      13,
+      1,
+      2,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      15,
+      12,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      7,
+      0,
+      12,
+      1,
+      "INT"
+    ],
+    [
+      17,
+      7,
+      1,
+      12,
+      2,
+      "INT"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7260000000000154,
+      "offset": [
+        709.5423146479857,
+        131.5987725444614
+      ]
+    },
+    "frontendVersion": "1.57.6",
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4,
+  "seed_widgets": {}
+}
