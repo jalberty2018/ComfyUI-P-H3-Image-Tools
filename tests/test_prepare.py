@@ -141,13 +141,13 @@ class PrepareTests(unittest.TestCase):
         node = module.PH3ResolutionSelector()
         for count in (1, 3):
             self.assertEqual(node.select("1:1 (Square)", 16.0, 32, True,
-                Tensor((count, 713, 1237, 3))), (1248, 704))
+                Tensor((count, 713, 1237, 3)))["result"], (1248, 704))
         self.assertEqual(node.select("1:1 (Square)", 16.0, 8, True,
-            Tensor((1, 713, 1237, 3))), (1240, 712))
+            Tensor((1, 713, 1237, 3)))["result"], (1240, 712))
         self.assertEqual(node.select("1:1 (Square)", 16.0, 32, True,
-            Tensor((1, 704, 1248, 3))), (1248, 704))
+            Tensor((1, 704, 1248, 3)))["result"], (1248, 704))
         self.assertEqual(node.select("1:1 (Square)", 16.0, 32, True,
-            Tensor((1, 1, 1, 3))), (32, 32))
+            Tensor((1, 1, 1, 3)))["result"], (32, 32))
         for image in (None, "bad", Tensor((0, 713, 1237, 3)), Tensor((1, 0, 1237, 3))):
             with self.subTest(image=image), self.assertRaisesRegex(ValueError, "non-empty IMAGE"):
                 node.select("1:1 (Square)", 1.0, 8, True, image)
@@ -158,7 +158,8 @@ class PrepareTests(unittest.TestCase):
         with patch.dict(sys.modules, {"comfy_extras.nodes_resolution": native}):
             for image in (None, Tensor((1, 713, 1237, 3))):
                 result = module.PH3ResolutionSelector().select("3:4 (Portrait Standard)", 16.0, 32, False, image)
-                self.assertEqual(result, (3552, 4736))
+                self.assertEqual(result["result"], (3552, 4736))
+                self.assertEqual(result["ui"], {"width": [3552], "height": [4736]})
                 execute.assert_called_with("3:4 (Portrait Standard)", 16.0, 32)
 
     def test_separate_matches_batch(self):

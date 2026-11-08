@@ -154,9 +154,9 @@ class PH3ResolutionSelector:
                 raise ValueError("Use original image resolution requires a non-empty IMAGE input.")
             width = max(multiple, round(image.shape[2] / multiple) * multiple)
             height = max(multiple, round(image.shape[1] / multiple) * multiple)
-            return width, height
+            return {"result": (width, height), "ui": {"width": [width], "height": [height]}}
 
         from comfy_extras.nodes_resolution import ResolutionSelector
 
         result = ResolutionSelector.execute(aspect_ratio, megapixels, multiple)
-        return result[0], result[1]
+        return {"result": (result[0], result[1]), "ui": {"width": [result[0]], "height": [result[1]]}}

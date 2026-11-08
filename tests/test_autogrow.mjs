@@ -28,6 +28,7 @@ function fixture(nodeName = "PH3UpsamplerPrepare") {
             this.onConnectionsChange();
         }
         addInput(name, type) { this.inputs.push({ name, type, link: null }); }
+        addCustomWidget(widget) { this.widgets.push(widget); }
         removeOutput(index) {
             this.outputs.splice(index, 1);
             this.onConnectionsChange();
@@ -56,6 +57,35 @@ test("new node starts with one input and grows to nine", () => {
         assert.equal(names().length, Math.min(i + 1, 9));
     }
     assert.equal(node.inputs.find(i => i.name === "prompt").link, 99);
+});
+
+test("resolution selector reorders, toggles, restores old settings and displays results", () => {
+    const { node } = fixture("PH3ResolutionSelector");
+    node.widgets = [
+        { name: "aspect_ratio", type: "combo", value: "1:1 (Square)" },
+        { name: "megapixels", type: "number", value: 1 },
+        { name: "multiple", type: "number", value: 8 },
+        { name: "use_original_image_resolution", type: "toggle", value: false },
+    ];
+    node.onNodeCreated();
+    const toggle = node.widgets[0];
+    assert.equal(toggle.name, "use_original_image_resolution");
+    node.onConfigure({ widgets_values: ["3:4 (Portrait Standard)", 4, 32, true] });
+    assert.equal(toggle.value, true);
+    const aspect = node.widgets.find(w => w.name === "aspect_ratio");
+    assert.equal(aspect.value, "3:4 (Portrait Standard)");
+    assert.equal(aspect.hidden, true);
+    assert.equal(aspect.computeSize()[1], -4);
+    assert.equal(node.widgets.find(w => w.name === "multiple").value, 32);
+    toggle.value = false;
+    toggle.callback(false);
+    assert.equal(aspect.type, "combo");
+    assert.equal(aspect.hidden, false);
+    node.onExecuted({ width: [1248], height: [704] });
+    const lines = [];
+    node.widgets.at(-1).draw({ fillText: text => lines.push(text) }, node, 300, 0);
+    assert.deepEqual(lines, ["width: 1248", "height: 704"]);
+    assert.equal(node.widgets.at(-1).options.serialize, false);
 });
 
 test("restoring a workflow preserves connected slots and interior gaps", () => {

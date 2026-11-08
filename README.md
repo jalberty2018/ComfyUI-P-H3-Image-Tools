@@ -86,6 +86,9 @@ Connect `original_ref_image` from either preparation node to its optional `image
 input. Enable **Use original image resolution** to round the input width and
 height to the nearest `multiple`, with a minimum of one multiple per dimension.
 Only `aspect_ratio` and `megapixels` are ignored in this mode.
+The switch appears first; enabling it hides `aspect_ratio` and `megapixels`,
+leaving `multiple` visible. After execution, the resulting width and height
+are displayed at the bottom of the node.
 An absent or empty image raises a clear error. For batches,
 the shared frame dimensions are returned. This node does not resize the image.
 
