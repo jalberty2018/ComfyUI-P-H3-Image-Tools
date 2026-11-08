@@ -28,6 +28,10 @@ function fixture(nodeName = "PH3UpsamplerPrepare") {
             this.onConnectionsChange();
         }
         addInput(name, type) { this.inputs.push({ name, type, link: null }); }
+        removeOutput(index) {
+            this.outputs.splice(index, 1);
+            this.onConnectionsChange();
+        }
         computeSize() { return [390, this.inputs.length * 25 + 100]; }
         setSize(size) { this.size = size; }
         setDirtyCanvas() {}
@@ -89,3 +93,25 @@ test("separate-output node also grows to nine inputs", () => {
         assert.equal(names().length, Math.min(i + 1, 9));
     }
 });
+
+for (const nodeName of ["PH3UpsamplerPrepare", "PH3UpsamplerPrepareSeparate"]) {
+    test(`${nodeName} removes saved height output and preserves image outputs`, () => {
+        const { node, flush } = fixture(nodeName);
+        const imageCount = nodeName.endsWith("Separate") ? 9 : 1;
+        const outputs = [
+            { name: "upsampler_prompt", type: "STRING", links: [71] },
+            ...Array.from({ length: imageCount }, (_, i) => ({
+                name: imageCount === 1 ? "images" : `image_${i + 1}`,
+                type: "IMAGE", links: [100 + i],
+            })),
+            { name: "original_ref_image", type: "IMAGE", links: [200] },
+        ];
+        node.outputs = [...outputs, { name: "orginal_ref_height", type: "INT", links: null }];
+        node.onConfigure();
+        flush();
+        assert.deepEqual(node.outputs, outputs);
+        node.onConfigure();
+        flush();
+        assert.deepEqual(node.outputs, outputs);
+    });
+}

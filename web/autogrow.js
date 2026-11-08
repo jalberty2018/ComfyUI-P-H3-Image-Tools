@@ -13,6 +13,13 @@ export function syncImageInputs(node) {
         input.link != null ? Math.max(highest, imageNumber(input)) : highest, 0);
     const lastVisible = Math.min(9, highestConnected + 1);
     let changed = false;
+    // Saved workflows may retain the removed height output after a node update.
+    for (let i = (node.outputs?.length ?? 0) - 1; i >= 0; i--) {
+        if (["orginal_ref_height", "original_ref_height"].includes(node.outputs[i].name)) {
+            node.removeOutput(i);
+            changed = true;
+        }
+    }
     for (let i = inputs.length - 1; i >= 0; i--) {
         if (imageNumber(inputs[i]) > 9 || (imageNumber(inputs[i]) > lastVisible && inputs[i].link == null)) {
             node.removeInput(i);
