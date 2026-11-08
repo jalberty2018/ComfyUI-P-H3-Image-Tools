@@ -18,8 +18,8 @@ class PH3UpsamplerPrepare:
             "optional": {f"image_{i}": ("IMAGE",) for i in range(1, 10)},
         }
 
-    RETURN_TYPES = ("STRING", "IMAGE", "INT", "INT")
-    RETURN_NAMES = ("upsampler_prompt", "images", "orignal_ref_width", "orginal_ref_height")
+    RETURN_TYPES = ("STRING", "IMAGE", "IMAGE")
+    RETURN_NAMES = ("upsampler_prompt", "images", "original_ref_image")
     FUNCTION = "prepare"
     CATEGORY = "P-H3/Image Tools"
     DESCRIPTION = "Prepare an adaptive P-H3 prompt and a white-padded image batch. Empty inputs are skipped."
@@ -77,8 +77,6 @@ class PH3UpsamplerPrepare:
         request = re.sub(r"<Picture\s+(\d+)>", replace_picture, prompt)
         reference = next(value for slot, value in active if slot == reference_image)
 
-        original_height, original_width = reference.shape[1:3]
-
         def rgb(value):
             value = value.to(device=reference.device, dtype=reference.dtype)
             if value.shape[-1] == 1:
@@ -108,17 +106,17 @@ class PH3UpsamplerPrepare:
             + f"Edit <Picture {picture_numbers[reference_image]}>. {request}<|im_end|>\n"
             + "<|im_start|>assistant\n<think>\n"
         )
-        return text, torch.cat(images, dim=0), int(original_width), int(original_height)
+        return text, torch.cat(images, dim=0), reference
 
 
 class PH3UpsamplerPrepareSeparate(PH3UpsamplerPrepare):
-    RETURN_TYPES = ("STRING",) + ("IMAGE",) * 9 + ("INT", "INT")
+    RETURN_TYPES = ("STRING",) + ("IMAGE",) * 10
     RETURN_NAMES = ("upsampler_prompt",) + tuple(f"image_{i}" for i in range(1, 10)) + (
-        "orignal_ref_width", "orginal_ref_height",
+        "original_ref_image",
     )
     DESCRIPTION = "Prepare a P-H3 prompt and up to nine separate images. Unused outputs return None."
 
     def prepare(self, prompt, reference_image=1, megapixels=1.0, **kwargs):
-        text, batch, width, height = super().prepare(prompt, reference_image, megapixels, **kwargs)
+        text, batch, reference = super().prepare(prompt, reference_image, megapixels, **kwargs)
         images = tuple(batch[i:i + 1] if i < batch.shape[0] else None for i in range(9))
-        return (text, *images, width, height)
+        return (text, *images, reference)

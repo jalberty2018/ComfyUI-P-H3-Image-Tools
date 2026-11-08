@@ -31,9 +31,10 @@ ComfyUI installation.
   per MP. Smaller images are also enlarged to reach this target.
 - `upsampler_prompt` → `Generate Text.prompt`.
 - `images` → `Generate Text.image` (a single IMAGE batch).
-- `orignal_ref_width` / `orginal_ref_height`: INT outputs containing the original
-  width and height in pixels of the selected reference image, before scaling.
-  If the selected slot is empty, these describe the fallback reference image.
+- `original_ref_image`: IMAGE output containing the selected reference input
+  unchanged, at its original resolution, before scaling, padding or RGB conversion.
+  If the selected slot is empty, this returns the fallback reference input.
+  If the input contains a batch, the full original batch is returned.
 
 The node replaces StringFormat, ImageScaleToTotalPixels, GetImageSize,
 ResizeAndPadImage, and BatchImagesNode inside **Make one node**. Generate Text
@@ -60,7 +61,7 @@ use `None` for empty images. A black image is a valid image and is retained.
 **P-H3 Upsampler Prepare (9 Separate Images)** provides the same preparation and
 inputs as the batch node, but replaces `images` with nine IMAGE outputs,
 `image_1` through `image_9`. The prompt output stays first and the original
-reference width/height outputs follow the nine images.
+`original_ref_image` output follows the nine images.
 
 Connect these outputs in order to native **Generate Text** (`TextGenerateV2`)
 inputs `images.image1` through `images.image9`, and connect `upsampler_prompt`
