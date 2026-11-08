@@ -1,7 +1,13 @@
-from .nodes import PH3UpsamplerPrepare
+from .nodes import PH3UpsamplerPrepare, PH3UpsamplerPrepareSeparate
 
-NODE_CLASS_MAPPINGS = {"PH3UpsamplerPrepare": PH3UpsamplerPrepare}
-NODE_DISPLAY_NAME_MAPPINGS = {"PH3UpsamplerPrepare": "P-H3 Upsampler Prepare (10 Images)"}
+NODE_CLASS_MAPPINGS = {
+    "PH3UpsamplerPrepare": PH3UpsamplerPrepare,
+    "PH3UpsamplerPrepareSeparate": PH3UpsamplerPrepareSeparate,
+}
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "PH3UpsamplerPrepare": "P-H3 Upsampler Prepare (9 Images)",
+    "PH3UpsamplerPrepareSeparate": "P-H3 Upsampler Prepare (9 Separate Images)",
+}
 
 WEB_DIRECTORY = "./web"
 

@@ -7,7 +7,7 @@ const source = readFileSync(new URL("../web/autogrow.js", import.meta.url), "utf
     .replace('import { app } from "../../scripts/app.js";', "")
     .replace("export function syncImageInputs", "function syncImageInputs");
 
-function fixture() {
+function fixture(nodeName = "PH3UpsamplerPrepare") {
     let extension;
     const jobs = [];
     const context = vm.createContext({
@@ -21,7 +21,9 @@ function fixture() {
                 ...Array.from({ length: 10 }, (_, i) => ({ name: `image_${i + 1}`, type: "IMAGE", link: null }))];
         }
         removeInput(index) {
-            assert.equal(this.inputs[index].link, null, "Never remove a connected slot");
+            if (this.inputs[index].name !== "image_10") {
+                assert.equal(this.inputs[index].link, null, "Never remove a supported connected slot");
+            }
             this.inputs.splice(index, 1);
             this.onConnectionsChange();
         }
@@ -31,23 +33,23 @@ function fixture() {
         setDirtyCanvas() {}
         onNodeCreated() { return "original called"; }
     }
-    extension.beforeRegisterNodeDef(Node, { name: "PH3UpsamplerPrepare" });
+    extension.beforeRegisterNodeDef(Node, { name: nodeName });
     const node = new Node();
     const flush = () => { while (jobs.length) jobs.shift()(); };
     const names = () => node.inputs.filter(i => i.type === "IMAGE").map(i => i.name);
     return { node, flush, names };
 }
 
-test("new node starts with one input and grows to ten", () => {
+test("new node starts with one input and grows to nine", () => {
     const { node, flush, names } = fixture();
     assert.equal(node.onNodeCreated(), "original called");
     flush();
     assert.deepEqual(names(), ["image_1"]);
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 9; i++) {
         node.inputs.find(input => input.name === `image_${i}`).link = i;
         node.onConnectionsChange();
         flush();
-        assert.equal(names().length, Math.min(i + 1, 10));
+        assert.equal(names().length, Math.min(i + 1, 9));
     }
     assert.equal(node.inputs.find(i => i.name === "prompt").link, 99);
 });
@@ -67,10 +69,23 @@ test("restoring a workflow preserves connected slots and interior gaps", () => {
     assert.deepEqual(names(), ["image_1", "image_2", "image_3"]);
 });
 
-test("legacy workflow with ten connected splitter outputs keeps all inputs", () => {
+test("legacy workflow with ten connected splitter outputs removes the unsupported tenth input", () => {
     const { node, flush, names } = fixture();
     node.inputs.forEach((input, i) => { input.link = i; });
     node.onConfigure();
     flush();
-    assert.equal(names().length, 10);
+    assert.equal(names().length, 9);
+});
+
+
+test("separate-output node also grows to nine inputs", () => {
+    const { node, flush, names } = fixture("PH3UpsamplerPrepareSeparate");
+    node.onNodeCreated();
+    flush();
+    for (let i = 1; i <= 9; i++) {
+        node.inputs.find(input => input.name === `image_${i}`).link = i;
+        node.onConnectionsChange();
+        flush();
+        assert.equal(names().length, Math.min(i + 1, 9));
+    }
 });

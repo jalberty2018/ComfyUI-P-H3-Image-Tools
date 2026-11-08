@@ -11,10 +11,10 @@ export function syncImageInputs(node) {
     const inputs = node.inputs ?? [];
     const highestConnected = inputs.reduce((highest, input) =>
         input.link != null ? Math.max(highest, imageNumber(input)) : highest, 0);
-    const lastVisible = Math.min(10, highestConnected + 1);
+    const lastVisible = Math.min(9, highestConnected + 1);
     let changed = false;
     for (let i = inputs.length - 1; i >= 0; i--) {
-        if (imageNumber(inputs[i]) > lastVisible && inputs[i].link == null) {
+        if (imageNumber(inputs[i]) > 9 || (imageNumber(inputs[i]) > lastVisible && inputs[i].link == null)) {
             node.removeInput(i);
             changed = true;
         }
@@ -57,7 +57,7 @@ function schedule(node) {
 app.registerExtension({
     name: "PH3.ImageTools.Autogrow",
     beforeRegisterNodeDef(nodeType, nodeData) {
-        if (nodeData.name !== "PH3UpsamplerPrepare") return;
+        if (!["PH3UpsamplerPrepare", "PH3UpsamplerPrepareSeparate"].includes(nodeData.name)) return;
         for (const hook of ["onNodeCreated", "onConfigure", "onConnectionsChange"]) {
             const original = nodeType.prototype[hook];
             nodeType.prototype[hook] = function (...args) {

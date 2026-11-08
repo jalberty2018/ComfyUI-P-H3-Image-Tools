@@ -11,15 +11,15 @@ class PH3UpsamplerPrepare:
         return {
             "required": {
                 "prompt": ("STRING", {"multiline": True, "default": ""}),
-                "reference_image": ("INT", {"default": 1, "min": 1, "max": 10,
+                "reference_image": ("INT", {"default": 1, "min": 1, "max": 9,
                     "tooltip": "Input slot used for Edit <Picture N> and output dimensions. If empty, uses the first available image."}),
                 "megapixels": ("FLOAT", {"default": 1.0, "min": 0.01, "max": 16.0, "step": 0.01}),
             },
-            "optional": {f"image_{i}": ("IMAGE",) for i in range(1, 11)},
+            "optional": {f"image_{i}": ("IMAGE",) for i in range(1, 10)},
         }
 
-    RETURN_TYPES = ("STRING", "IMAGE")
-    RETURN_NAMES = ("upsampler_prompt", "images")
+    RETURN_TYPES = ("STRING", "IMAGE", "INT", "INT")
+    RETURN_NAMES = ("upsampler_prompt", "images", "orignal_ref_width", "orginal_ref_height")
     FUNCTION = "prepare"
     CATEGORY = "P-H3/Image Tools"
     DESCRIPTION = "Prepare an adaptive P-H3 prompt and a white-padded image batch. Empty inputs are skipped."
@@ -29,15 +29,18 @@ class PH3UpsamplerPrepare:
         from comfy_extras.nodes_post_processing import ImageScaleToTotalPixels
         from comfy_extras.nodes_images import ResizeAndPadImage
 
-        if not isinstance(reference_image, int) or not 1 <= reference_image <= 10:
-            raise ValueError("reference_image must be an input slot between 1 and 10.")
+        if not isinstance(reference_image, int) or not 1 <= reference_image <= 9:
+            raise ValueError("reference_image must be an input slot between 1 and 9.")
         if not math.isfinite(megapixels) or not 0.01 <= megapixels <= 16.0:
             raise ValueError("megapixels must be between 0.01 and 16.0.")
+
+        if kwargs.get("image_10") is not None:
+            raise ValueError("P-H3 supports at most 9 image inputs; disconnect image_10.")
 
         active = []
         picture_numbers = {}
         count = 0
-        for slot in range(1, 11):
+        for slot in range(1, 10):
             value = kwargs.get(f"image_{slot}")
             if value is None:
                 continue
@@ -50,6 +53,9 @@ class PH3UpsamplerPrepare:
             picture_numbers[slot] = count + 1
             count += value.shape[0]
             active.append((slot, value))
+
+        if count > 9:
+            raise ValueError("P-H3 supports at most 9 images in total, including batch frames.")
 
         if not active:
             raise ValueError("No images supplied. Connect at least one non-empty IMAGE.")
@@ -70,6 +76,8 @@ class PH3UpsamplerPrepare:
 
         request = re.sub(r"<Picture\s+(\d+)>", replace_picture, prompt)
         reference = next(value for slot, value in active if slot == reference_image)
+
+        original_height, original_width = reference.shape[1:3]
 
         def rgb(value):
             value = value.to(device=reference.device, dtype=reference.dtype)
@@ -100,4 +108,17 @@ class PH3UpsamplerPrepare:
             + f"Edit <Picture {picture_numbers[reference_image]}>. {request}<|im_end|>\n"
             + "<|im_start|>assistant\n<think>\n"
         )
-        return text, torch.cat(images, dim=0)
+        return text, torch.cat(images, dim=0), int(original_width), int(original_height)
+
+
+class PH3UpsamplerPrepareSeparate(PH3UpsamplerPrepare):
+    RETURN_TYPES = ("STRING",) + ("IMAGE",) * 9 + ("INT", "INT")
+    RETURN_NAMES = ("upsampler_prompt",) + tuple(f"image_{i}" for i in range(1, 10)) + (
+        "orignal_ref_width", "orginal_ref_height",
+    )
+    DESCRIPTION = "Prepare a P-H3 prompt and up to nine separate images. Unused outputs return None."
+
+    def prepare(self, prompt, reference_image=1, megapixels=1.0, **kwargs):
+        text, batch, width, height = super().prepare(prompt, reference_image, megapixels, **kwargs)
+        images = tuple(batch[i:i + 1] if i < batch.shape[0] else None for i in range(9))
+        return (text, *images, width, height)
