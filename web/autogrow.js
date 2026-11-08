@@ -64,6 +64,16 @@ function schedule(node) {
 app.registerExtension({
     name: "PH3.ImageTools.Autogrow",
     beforeRegisterNodeDef(nodeType, nodeData) {
+        if (nodeData.name === "PH3ResolutionSelector") {
+            const original = nodeType.prototype.onNodeCreated;
+            nodeType.prototype.onNodeCreated = function (...args) {
+                const result = original?.apply(this, args);
+                const toggle = this.widgets?.find(w => w.name === "use_original_image_resolution");
+                if (toggle) toggle.label = "Use original image resolution";
+                return result;
+            };
+            return;
+        }
         if (!["PH3UpsamplerPrepare", "PH3UpsamplerPrepareSeparate"].includes(nodeData.name)) return;
         for (const hook of ["onNodeCreated", "onConfigure", "onConnectionsChange"]) {
             const original = nodeType.prototype[hook];

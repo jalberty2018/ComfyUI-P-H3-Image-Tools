@@ -75,6 +75,20 @@ or an execution blocker. For example, populated inputs 2 and 8 produce outputs
 and the total remains limited to nine. Scaling, padding and reference fallback
 behave exactly like the existing batch node.
 
+## Resolution selector
+
+**P-H3 Resolution Selector** provides `width` and `height` INT outputs.
+With **Use original image resolution** disabled (default), it delegates to
+ComfyUI's native Resolution Selector using `aspect_ratio`, `megapixels` and
+`multiple`, with the same options and defaults.
+
+Connect `original_ref_image` from either preparation node to its optional `image`
+input. Enable **Use original image resolution** to round the input width and
+height to the nearest `multiple`, with a minimum of one multiple per dimension.
+Only `aspect_ratio` and `megapixels` are ignored in this mode.
+An absent or empty image raises a clear error. For batches,
+the shared frame dimensions are returned. This node does not resize the image.
+
 ## Example workflow
 
 `examples/p-h3-image_edit_one_node.json` is the supplied workflow with the group
